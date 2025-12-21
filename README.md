@@ -70,7 +70,7 @@ where IP-based rate limiting and blocking are a concern.
 
 ## Documentation
 
-For full setup and usage details, see [docs.md](docs.md).
+For full setup and usage details, see [DOCUMENTATION.md](DOCUMENTATION.md).
 
 ## 📦 Requirements
 
