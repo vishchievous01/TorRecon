@@ -14,6 +14,7 @@ through the **Tor network** and automatically rotates **Tor exit IPs** between a
 It is designed for **OSINT**, **bug bounty reconnaissance**, and **stealthy scanning**
 where IP-based rate limiting and blocking are a concern.
 
+
 ---
 
 ## ✨ Features
@@ -66,6 +67,10 @@ where IP-based rate limiting and blocking are a concern.
 - httpx
 
 ---
+
+## Documentation
+
+For full setup and usage details, see [docs.md](docs.md).
 
 ## 📦 Requirements
 
@@ -146,6 +151,7 @@ pip install stem requests fake-useragent pysocks
 TorRecon/
 ├── tor_recon.py
 └── README.md
+└── LICENSE
 ```
 ### 🚀 Usage
 Activate the virtual environment:
