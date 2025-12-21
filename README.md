@@ -216,6 +216,35 @@ Do not run it against systems without explicit permission.**
 You are responsible for complying with local laws, provider terms,
 and bug bounty program scopes.
 
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+You are free to:
+- Use, modify, and distribute the software
+- Use it for commercial and non-commercial purposes
+
+Under the condition that the original copyright notice
+and this permission notice are included.
+
+See the [LICENSE](LICENSE) file for full details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+### How to contribute
+
+1. Fork the repository
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/my-feature
+   ```
+
 ### 👤 Author
 
 Built by a SOC analyst / full-stack developer who enjoys combining
