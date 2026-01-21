@@ -344,4 +344,3 @@ Recon tooling design
 Failure-tolerant security automation
 
 It intentionally favors clarity and correctness over speed.
->>>>>>> 603075e (Total upgradation)
