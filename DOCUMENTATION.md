@@ -1,6 +1,7 @@
-<<<<<<< HEAD
-=======
 🕵️ TorRecon Documentation
+
+---
+
 1. Overview
 
 TorRecon is a command-line reconnaissance framework that orchestrates common recon tools through the Tor network, with an emphasis on OPSEC, explainability, and structured output.
@@ -92,12 +93,11 @@ TorRecon now follows this rule strictly.
 Ubuntu / Kali (tested on Ubuntu 24.04, Kali Linux)
 
 Tor installed and running
->>>>>>> 603075e (Total upgradation)
 
 ### Single target recon
 
-<<<<<<< HEAD
-=======
+---
+
 Internet access (Tor-routed)
 
 Install system packages:
