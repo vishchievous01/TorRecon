@@ -1,218 +1,194 @@
-# 🕵️‍♂️ TorRecon – Tor-Rotating Recon Toolkit
+# 🕵️‍♂️ TorRecon
+### OPSEC-Aware Tor Reconnaissance Toolkit
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python)
 ![Tor](https://img.shields.io/badge/Tor-Network-purple?logo=tor-project)
-![Linux](https://img.shields.io/badge/Linux-Ubuntu-orange?logo=linux)
-![License](https://img.shields.io/badge/License-MIT-green)
+![Linux](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Kali-orange?logo=linux)
 ![Status](https://img.shields.io/badge/Status-Active-success)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-**TorRecon** is a reconnaissance orchestration toolkit that routes all scanning traffic
-through the **Tor network** and automatically rotates **Tor exit IPs** between actions.
+## Overview
 
-It is designed for **OSINT**, **bug bounty reconnaissance**, and **stealthy scanning**
-where IP-based rate limiting and blocking are a concern.
+**TorRecon** is an OPSEC-aware reconnaissance framework that routes reconnaissance traffic through the **Tor network**, applies **risk-based scan profiles**, and produces **structured JSON output**.
 
-
----
-
-## ✨ Features
-
-- 🔒 **Tor-routed reconnaissance**  
-  All HTTP and TCP traffic is routed through Tor’s SOCKS5 proxy (`127.0.0.1:9050`).
-
-- 🔄 **Automatic IP rotation**  
-  Uses Tor’s control port and the `stem` library to request new Tor circuits (`NEWNYM`).
-
-- 🎯 **Single-target and campaign modes**
-  - Single target: port scans or subdomain enumeration
-  - Campaign mode: multiple targets, rotating IP per target
-
-- 🧰 **Powered by proven tools**
-  - `nmap` – port and service detection
-  - `subfinder` – subdomain enumeration
-  - `httpx` – HTTP probing (via proxychains)
-
-- 🖥️ **CLI-first and scriptable**  
-  Easy to automate and extend.
+It is built to operate reliably in Tor-constrained environments, prioritizing correctness, transparency, and failure-tolerant design over raw scan speed.
 
 ---
 
-## 🧠 How It Works
+## Features
 
-1. **Tor runs locally** with:
-   - SOCKS proxy: `127.0.0.1:9050`
-   - Control port: `127.0.0.1:9051`
+- 🔒 **Explicit Tor Routing**
+  - HTTP traffic via `requests[socks]`
+  - System tools via `torsocks`
+  - No proxychains or LD_PRELOAD hacks
 
-2. **TorRecon**:
-   - Connects to Tor’s control port using `stem.Controller`
-   - Authenticates and sends `Signal.NEWNYM` to rotate circuits
-   - Fetches the current Tor exit IP via `https://icanhazip.com`
-   - Executes recon tools through `proxychains`
+- 🎯 **OPSEC Scan Profiles**
+  - Risk-aware scan behavior
+  - Tor-safe defaults
+  - Easily extensible profiles
 
-3. In **campaign mode**, this cycle repeats for each target so every target
-   sees a different Tor exit IP.
+- 🧠 **Explain Mode**
+  - Transparent reasoning for scan behavior
+  - Clear visibility into OPSEC decisions
+
+- 🔁 **Campaign Mode**
+  - Multi-target reconnaissance
+  - Optional Tor circuit rotation
+
+- 📦 **Structured Output**
+  - Automatic JSON results
+  - SIEM / SOC friendly
+  - Failures recorded, not hidden
+
+- 🧰 **Tool Orchestration**
+  - `nmap` (best-effort port scanning)
+  - `subfinder` (subdomain enumeration)
+  - Designed for extension (`httpx`, `nuclei`, etc.)
 
 ---
 
-## 🧱 Tech Stack
-
-- Python 3.12+
-- Tor
-- stem
-- proxychains
-- nmap
-- subfinder
-- httpx
+## Architecture
+```bash
+User
+└── TorRecon (Python)
+├── requests + SOCKS5h → Tor
+├── torsocks → System tools
+├── stem (ControlPort) → Tor circuit control
+└── JSON Output
+```
 
 ---
 
-## Documentation
-
-For full setup and usage details, see [DOCUMENTATION.md](DOCUMENTATION.md).
-
-## 📦 Requirements
+## Requirements
 
 ### System
-
-- Ubuntu (tested in VirtualBox)
-- Tor service
-- proxychains
+- Linux (Ubuntu / Kali recommended)
+- Tor
+- torsocks
 - nmap
-- Go (for subfinder and httpx)
-
-### Python Packages
-
-- `stem`
-- `requests`
-- `fake-useragent`
-- `PySocks`
-
----
-
-## ⚙️ Setup
-
-### 1️⃣ Tor Configuration
+- Python 3.12+
 
 ```bash
 sudo apt update
-sudo apt install tor
-sudo nano /etc/tor/torrc
+sudo apt install -y tor torsocks nmap python3 python3-venv
 ```
-Add:
-```bash
+
+**Tor Configuration**
+
+- Edit Tor configuration:
+
+`sudo nano /etc/tor/torrc`
+
+
+- Ensure the following:
+
+```bash 
 SocksPort 127.0.0.1:9050
 ControlPort 127.0.0.1:9051
 CookieAuthentication 1
-```
-Restart and verify:
-```bash
-sudo systemctl restart tor
-sudo systemctl status tor
-sudo ss -tlnp | grep -E '9050|9051'
-```
-### 2️⃣ proxychains Configuration
-```bash
-sudo apt install proxychains
-sudo nano /etc/proxychains.conf
-```
- Add:
-```bash
-[ProxyList]
-socks5  127.0.0.1 9050
-```
-### 3️⃣ Recon Tools
-```bash
-sudo apt install nmap golang-go
-go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-go install github.com/projectdiscovery/httpx/cmd/httpx@latest
-
-echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
-source ~/.bashrc
-```
-Verify:
-```bash
-subfinder -version
-httpx -version
-nmap --version
+CookieAuthFileGroupReadable 1
 ```
 
-### 4️⃣ Python Virtual Environment
+
+- Restart Tor:
+
+`sudo systemctl restart tor`
+
+
+- Allow user access to the control cookie:
+
+`sudo usermod -aG debian-tor $USER`
+
+
+- Log out and log back in.
+
+**Python Setup**
+
+Create and activate a virtual environment:
 
 ```bash
-python3 -m venv ~/tor-rotator-env
-source ~/tor-rotator-env/bin/activate
+python3 -m venv torrecon-venv
+source torrecon-venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install --upgrade pip
-pip install stem requests fake-useragent pysocks
-```
-### 📁 Project Layout
-```bash
-TorRecon/
-├── tor_recon.py
-└── README.md
-└── LICENSE
-```
-### 🚀 Usage
-Activate the virtual environment:
-```bash
-cd ~/TorRecon
-source ~/tor-rotator-env/bin/activate
-```
-Run TorRecon (root required for Tor control authentication):
-```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py ...
+pip install requests[socks] stem
 ```
 
-### 🎯 Examples
-🔍 Single Target – Port Scan
+**Usage**
+
+Activate the environment and run TorRecon:
+
 ```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py 45.33.32.156 --ports
+source torrecon-venv/bin/activate
+cd TorRecon
 ```
 
-### 🌐 Single Target – Subdomain Enumeration
+Explain Mode
 ```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py hackerone.com --subs > subs.txt
-cat subs.txt | proxychains httpx -silent -title -status-code
+python tor_recon.py scanme.nmap.org --ports --explain
 ```
 
-### 📦 Campaign Mode – Multiple Targets
-Ports
+Single Target – Port Scan
 ```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py --campaign 45.33.32.156 93.184.216.34 --ports
-```
-Subdomains
-```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py --campaign hackerone.com bugcrowd.com --subs
+python tor_recon.py scanme.nmap.org --ports
 ```
 
-### 🧪 Example Bug Bounty Workflow
+Single Target – Subdomain Enumeration
 ```bash
-sudo ~/tor-rotator-env/bin/python tor_recon.py \
-  --campaign hackerone.com bugcrowd.com \
-  --subs > subs_all.txt
+python tor_recon.py hackerone.com --subs
+```
 
-cat subs_all.txt | proxychains httpx -silent -title -status-code > live_hosts.txt
+Campaign Mode
+```bash
+python tor_recon.py --campaign scanme.nmap.org example.com --ports
+```
+
+**Output**
+
+All runs generate JSON output in the `output/` directory.
+
+```bash
+{
+  "profile": "stealth",
+  "timestamp": "2026-01-21T16:20:42+00:00",
+  "target": "scanme.nmap.org",
+  "tor_exit_ip": "109.70.100.12",
+  "results": [
+    {
+      "module": "ports",
+      "command": "nmap -sT -Pn --max-rate 10 ...",
+      "status": "attempted"
+    }
+  ]
+}
 
 ```
-### 🏗️ Design Choices
-- **proxychains for routing:**
-Keeps tools unchanged while routing traffic through Tor
+**OPSEC Notes**
 
-- **Root execution:**
-Avoids weakening Tor control authentication
+- Active scanning over Tor is best-effort
 
-- **Orchestrator, not a framework:**
-TorRecon focuses on IP rotation and workflow control
+- Tor exits are rate-limited and frequently blocked
+
+- Some failures are expected and intentionally logged
 
 ### 🛣️ Roadmap
-- Nuclei integration for vulnerability scanning
+- Passive DNS & TLS certificate harvesting
 
-- JSON / CSV output modes
+- HTTP header & favicon analysis
 
-- Config-driven campaigns (YAML / JSON)
+- Noise-budget based recon
 
-- Country-specific Tor exit nodes
+- Tor exit reliability scoring
+
+- HTML / Markdown reporting
+
+- Tor-safe Nuclei integration
 
 ### ⚠️ Disclaimer
 This tool is intended for educational use, research, and authorized security testing only.

@@ -1,0 +1,12 @@
+{
+  "profile": "stealth",
+  "timestamp": "2026-01-21T16:20:42.155240+00:00",
+  "results": [
+    {
+      "module": "ports",
+      "command": "nmap -sT -Pn --max-rate 10 --max-retries 2 --host-timeout 3m --unprivileged -4 scanme.nmap.org"
+    }
+  ],
+  "target": "scanme.nmap.org",
+  "tor_exit_ip": "109.70.100.12"
+}

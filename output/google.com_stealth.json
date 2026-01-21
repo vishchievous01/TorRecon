@@ -1,0 +1,12 @@
+{
+  "profile": "stealth",
+  "timestamp": "2026-01-21T16:15:49.236347Z",
+  "results": [
+    {
+      "module": "ports",
+      "command": "nmap -sT -Pn --max-rate 10 -4 google.com"
+    }
+  ],
+  "target": "google.com",
+  "tor_exit_ip": "109.70.100.12"
+}
