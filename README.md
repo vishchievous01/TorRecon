@@ -16,6 +16,12 @@
 It is built to operate reliably in Tor-constrained environments, prioritizing correctness, transparency, and failure-tolerant design over raw scan speed.
 
 ---
+## 📘 Documentation
+
+For detailed setup instructions, architecture, and usage examples, see  
+👉 **[DOCUMENTATION.md](DOCUMENTATION.md)**
+
+---
 
 ## Features
 
