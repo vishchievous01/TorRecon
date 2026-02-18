@@ -63,10 +63,17 @@ def get_ip():
 
 
 def run_cmd(cmd):
-    """Run system commands through Tor safely"""
     ip = get_ip()
     print(f"[{ip}] $ {' '.join(cmd)}")
-    subprocess.run(["torsocks"] + cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    result = subprocess.run(
+        ["torsocks"] + cmd, 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    return result.stdout.strip()
 
 
 parser = argparse.ArgumentParser(description="TorRecon - Tor-based Recon Toolkit")
@@ -153,17 +160,27 @@ elif args.ports and args.target:
 
 
 elif args.subs and args.target:
-    run_cmd(["subfinder", "-d", args.target, "-silent"])
+
+    output = run_cmd(["subfinder", "-d", args.target, "-silent"])
+
+    if not output:
+        subdomains = []
+    else:
+        subdomains = output.splitlines()
 
     result["target"] = args.target
     result["tor_exit_ip"] = get_ip()
+
     result["results"].append({
         "module": "subdomains",
         "tool": "subfinder",
-        "status": "attempted"
+        "count": len(subdomains),
+        "data": subdomains,
+        "status": "completed" if subdomains else "no_results"
     })
 
     save_results(args.target, result)
+
 
 
 else:
